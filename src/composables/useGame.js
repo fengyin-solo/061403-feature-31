@@ -400,15 +400,15 @@ export function useGame() {
     
     try {
       const gameState = JSON.parse(saved)
-      temperature.value = gameState.temperature
-      heat.value = gameState.heat
-      wood.value = gameState.wood
-      food.value = gameState.food
-      hide.value = gameState.hide
-      tools.value = gameState.tools
-      isDay.value = gameState.isDay
-      dayCount.value = gameState.dayCount
-      isBlizzard.value = gameState.isBlizzard
+      temperature.value = gameState.temperature ?? 80
+      heat.value = gameState.heat ?? 50
+      wood.value = gameState.wood ?? 10
+      food.value = gameState.food ?? 5
+      hide.value = gameState.hide ?? 0
+      tools.value = gameState.tools ?? 0
+      isDay.value = gameState.isDay ?? true
+      dayCount.value = gameState.dayCount ?? 1
+      isBlizzard.value = gameState.isBlizzard ?? false
       coldExposure.value = gameState.coldExposure ?? 0
       satiety.value = gameState.satiety ?? 80
       fatigue.value = gameState.fatigue ?? 20
@@ -423,7 +423,7 @@ export function useGame() {
         startNightCycle()
       }
       
-      addLog(`成功加载存档：${slot === 'auto' ? '自动存档' : slot}`, 'success')
+      addLog(`成功加载存档：${slot === 'auto' ? '自动存档' : slot}（第 ${dayCount.value} 天）`, 'success')
       return true
     } catch (e) {
       addLog('存档损坏，无法加载', 'danger')
@@ -478,9 +478,44 @@ export function useGame() {
     addLog('新游戏开始！注意保暖、进食和休息，祝你好运！', 'success')
   }
 
-  onMounted(() => {
+  function initGame() {
+    const saved = localStorage.getItem('snowSurvival_auto')
+    if (saved) {
+      try {
+        const gameState = JSON.parse(saved)
+        temperature.value = gameState.temperature ?? 80
+        heat.value = gameState.heat ?? 50
+        wood.value = gameState.wood ?? 10
+        food.value = gameState.food ?? 5
+        hide.value = gameState.hide ?? 0
+        tools.value = gameState.tools ?? 0
+        isDay.value = gameState.isDay ?? true
+        dayCount.value = gameState.dayCount ?? 1
+        isBlizzard.value = gameState.isBlizzard ?? false
+        coldExposure.value = gameState.coldExposure ?? 0
+        satiety.value = gameState.satiety ?? 80
+        fatigue.value = gameState.fatigue ?? 20
+        gameOver.value = false
+        gameOverReason.value = ''
+        actionLog.value = []
+
+        startTimers()
+        if (!isDay.value) {
+          startNightCycle()
+        }
+        addLog(`已恢复自动存档（第 ${dayCount.value} 天），从上次进度继续游戏。`, 'success')
+        return true
+      } catch (e) {
+        console.warn('自动存档损坏，使用默认进度开始', e)
+      }
+    }
     startTimers()
     addLog('欢迎来到雪地生存！白天收集资源，夜晚保持温暖。', 'info')
+    return false
+  }
+
+  onMounted(() => {
+    initGame()
   })
 
   onUnmounted(() => {
