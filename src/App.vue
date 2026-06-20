@@ -32,6 +32,14 @@
             :temperature="temperature" 
             :isDanger="isDanger"
           />
+          <CharacterStatusPanel
+            :coldExposure="coldExposure"
+            :satiety="satiety"
+            :fatigue="fatigue"
+            :isColdDanger="isColdDanger"
+            :isHungerDanger="isHungerDanger"
+            :isFatigueDanger="isFatigueDanger"
+          />
           <ResourcePanel 
             :heat="heat"
             :wood="wood"
@@ -63,13 +71,16 @@
             :gameOver="gameOver"
             :canFire="canMakeFire"
             :canCraft="wood >= 2 && hide >= 1"
+            :canRest="canRest"
             :huntRate="huntSuccessRate"
             :food="food"
+            :fatigue="fatigue"
             @chop="handleChop"
             @hunt="handleHunt"
             @craft="handleCraft"
             @fire="handleFire"
             @eat="handleEat"
+            @rest="handleRest"
           />
         </div>
       </div>
@@ -86,6 +97,9 @@
       :temperature="temperature"
       :wood="wood"
       :tools="tools"
+      :coldExposure="coldExposure"
+      :satiety="satiety"
+      :fatigue="fatigue"
       @restart="handleRestart"
       @load="showSaveManager"
     />
@@ -99,6 +113,7 @@ import { useAudio } from './composables/useAudio'
 import Campfire from './components/Campfire.vue'
 import Thermometer from './components/Thermometer.vue'
 import DayNightIndicator from './components/DayNightIndicator.vue'
+import CharacterStatusPanel from './components/CharacterStatusPanel.vue'
 import ResourcePanel from './components/ResourcePanel.vue'
 import ActionPanel from './components/ActionPanel.vue'
 import LogPanel from './components/LogPanel.vue'
@@ -116,17 +131,25 @@ const {
   isNight,
   dayCount,
   isBlizzard,
+  coldExposure,
+  satiety,
+  fatigue,
   gameOver,
   gameOverReason,
   actionLog,
   isDanger,
+  isColdDanger,
+  isHungerDanger,
+  isFatigueDanger,
   canMakeFire,
+  canRest,
   huntSuccessRate,
   chopWood,
   hunt,
   makeTools,
   makeFire,
   eatFood,
+  rest,
   saveGame,
   loadGame,
   getSaveSlots,
@@ -206,6 +229,14 @@ function handleEat() {
   }
 }
 
+function handleRest() {
+  if (canRest.value && heat.value >= 10) {
+    rest()
+  } else {
+    playWarning()
+  }
+}
+
 function handleSave(slotName) {
   saveGame(slotName)
 }
@@ -234,6 +265,12 @@ watch(isBlizzard, (newVal) => {
 watch(isDanger, (newVal) => {
   if (newVal && !muted.value) {
     playDanger()
+  }
+})
+
+watch([isColdDanger, isHungerDanger, isFatigueDanger], (newVals) => {
+  if (newVals.some(v => v) && !muted.value) {
+    playWarning()
   }
 })
 </script>

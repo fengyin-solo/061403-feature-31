@@ -11,7 +11,19 @@
         </div>
         <div class="stat-item">
           <span class="stat-label">最终体温</span>
-          <span class="stat-value">{{ temperature }}°C</span>
+          <span class="stat-value">{{ Math.round(temperature) }}°C</span>
+        </div>
+        <div class="stat-item">
+          <span class="stat-label">🥶 受寒度</span>
+          <span class="stat-value danger">{{ Math.round(coldExposure) }}</span>
+        </div>
+        <div class="stat-item">
+          <span class="stat-label">🍗 饱腹度</span>
+          <span class="stat-value danger">{{ Math.round(satiety) }}</span>
+        </div>
+        <div class="stat-item">
+          <span class="stat-label">😴 疲劳度</span>
+          <span class="stat-value danger">{{ Math.round(fatigue) }}</span>
         </div>
         <div class="stat-item">
           <span class="stat-label">收集木头</span>
@@ -45,6 +57,18 @@ defineProps({
     default: 1
   },
   temperature: {
+    type: Number,
+    default: 0
+  },
+  coldExposure: {
+    type: Number,
+    default: 0
+  },
+  satiety: {
+    type: Number,
+    default: 0
+  },
+  fatigue: {
     type: Number,
     default: 0
   },
@@ -90,7 +114,7 @@ defineEmits(['restart', 'load'])
   border: 2px solid rgba(231, 76, 60, 0.5);
   box-shadow: 0 0 50px rgba(231, 76, 60, 0.3);
   animation: slideUp 0.5s ease;
-  max-width: 450px;
+  max-width: 500px;
   width: 90%;
 }
 
@@ -133,13 +157,13 @@ defineEmits(['restart', 'load'])
 .final-stats {
   display: grid;
   grid-template-columns: repeat(2, 1fr);
-  gap: 15px;
+  gap: 12px;
   margin-bottom: 30px;
 }
 
 .stat-item {
   background: rgba(0, 0, 0, 0.3);
-  padding: 15px;
+  padding: 12px;
   border-radius: 10px;
   border: 1px solid rgba(255, 255, 255, 0.1);
 }
@@ -147,7 +171,7 @@ defineEmits(['restart', 'load'])
 .stat-label {
   display: block;
   color: rgba(255, 255, 255, 0.6);
-  font-size: 12px;
+  font-size: 11px;
   margin-bottom: 5px;
 }
 
@@ -156,6 +180,10 @@ defineEmits(['restart', 'load'])
   color: white;
   font-size: 20px;
   font-weight: bold;
+}
+
+.stat-value.danger {
+  color: #e74c3c;
 }
 
 .game-over-actions {
